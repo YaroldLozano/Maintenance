@@ -13,7 +13,9 @@ class TaskManagerGUI:
         # Frame principal
         frame = ttk.Frame(root, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
+        login-feature
 
+        main
         # Filtro: búsqueda por palabra clave y estado
         filter_frame = ttk.Frame(frame)
         filter_frame.pack(fill=tk.X, pady=(0, 10))
@@ -80,7 +82,11 @@ class TaskManagerGUI:
         self.search_var.set("")
         self.status_var.set("")
         self.refresh_tasks()
+        login-feature
 
+
+    
+          main
     def add_task(self):
         dlg = TaskDialog(self.root, "Add Task")
         if dlg.result:
@@ -137,7 +143,15 @@ class TaskManagerGUI:
         if task_id is None:
             return
         if self.task_manager.update_status(task_id, "Completed"):
+        login-feature
             self.task_manager.save_tasks()  # 👈 Asegura que se guarde el cambio
+
+            filter-tasks
+            self.task_manager.save_tasks()  # 👈 Asegura que se guarde el cambio
+
+            self.task_manager.save_tasks()
+        main
+        main
             self.refresh_tasks()
         else:
             messagebox.showerror("Error", "Could not mark task as complete.")
@@ -148,11 +162,11 @@ class TaskDialog(simpledialog.Dialog):
         super().__init__(parent, title)
 
     def body(self, frame):
-        ttk.Label(frame, text="Title:").grid(row=0, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Title0:").grid(row=0, column=0, sticky=tk.W)
         self.title_var = tk.StringVar(value=self.task["title"] if self.task else "")
         ttk.Entry(frame, textvariable=self.title_var, width=40).grid(row=0, column=1)
 
-        ttk.Label(frame, text="Description:").grid(row=1, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Description0:").grid(row=1, column=0, sticky=tk.W)
         self.desc_var = tk.StringVar(value=self.task["description"] if self.task else "")
         ttk.Entry(frame, textvariable=self.desc_var, width=40).grid(row=1, column=1)
 
