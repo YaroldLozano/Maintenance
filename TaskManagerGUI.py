@@ -2,8 +2,6 @@ from TaskManager import TaskManager
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 from datetime import datetime
-import json
-import os
 
 class TaskManagerGUI:
     def __init__(self, root):
@@ -15,6 +13,24 @@ class TaskManagerGUI:
         frame = ttk.Frame(root, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
         
+        # Filtro: búsqueda por palabra clave y estado
+        filter_frame = ttk.Frame(frame)
+        filter_frame.pack(fill=tk.X, pady=(0, 10))
+
+        ttk.Label(filter_frame, text="Buscar:").pack(side=tk.LEFT)
+        self.search_var = tk.StringVar()
+        search_entry = ttk.Entry(filter_frame, textvariable=self.search_var, width=30)
+        search_entry.pack(side=tk.LEFT, padx=5)
+
+        ttk.Label(filter_frame, text="Estado:").pack(side=tk.LEFT)
+        self.status_var = tk.StringVar()
+        status_combo = ttk.Combobox(filter_frame, textvariable=self.status_var, values=["", "Pending", "Completed"], width=15)
+        status_combo.pack(side=tk.LEFT, padx=5)
+        status_combo.set("")
+
+        ttk.Button(filter_frame, text="Aplicar Filtros", command=self.refresh_tasks).pack(side=tk.LEFT, padx=5)
+        ttk.Button(filter_frame, text="Limpiar", command=self.clear_filters).pack(side=tk.LEFT)
+
         # Treeview para mostrar tareas
         columns = ("ID", "Title", "Status", "Created Date", "Due Date", "Description")
         self.tree = ttk.Treeview(frame, columns=columns, show="headings")
@@ -39,9 +55,16 @@ class TaskManagerGUI:
         # Limpia la tabla
         for row in self.tree.get_children():
             self.tree.delete(row)
-        
-        # Agrega tareas actuales
+
+        keyword = self.search_var.get().lower()
+        status_filter = self.status_var.get()
+
         for task in self.task_manager.tasks:
+            if status_filter and task["status"] != status_filter:
+                continue
+            if keyword and keyword not in task["title"].lower() and keyword not in task["description"].lower():
+                continue
+
             due = task['due_date'] if task['due_date'] else "No due date"
             self.tree.insert("", tk.END, values=(
                 task["id"],
@@ -51,6 +74,11 @@ class TaskManagerGUI:
                 due,
                 task["description"][:30] + ("..." if len(task["description"]) > 30 else "")
             ))
+
+    def clear_filters(self):
+        self.search_var.set("")
+        self.status_var.set("")
+        self.refresh_tasks()
     
     def add_task(self):
         dlg = TaskDialog(self.root, "Add Task")
@@ -74,7 +102,6 @@ class TaskManagerGUI:
         task_id = self.get_selected_task_id()
         if task_id is None:
             return
-        # Buscar tarea
         task = next((t for t in self.task_manager.tasks if t["id"] == task_id), None)
         if not task:
             messagebox.showerror("Error", "Selected task not found.")
@@ -109,7 +136,11 @@ class TaskManagerGUI:
         if task_id is None:
             return
         if self.task_manager.update_status(task_id, "Completed"):
+            filter-tasks
+            self.task_manager.save_tasks()  # 👈 Asegura que se guarde el cambio
+
             self.task_manager.save_tasks()
+        main
             self.refresh_tasks()
         else:
             messagebox.showerror("Error", "Could not mark task as complete.")
@@ -145,8 +176,6 @@ class TaskDialog(simpledialog.Dialog):
     
     def apply(self):
         self.result = (self.title_var.get().strip(), self.desc_var.get().strip(), self.due_var.get().strip())
-
-# Incluye tu clase TaskManager aquí (sin modificarla, o importala si está en otro archivo)
 
 if __name__ == "__main__":
     root = tk.Tk()
