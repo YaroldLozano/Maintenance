@@ -109,6 +109,7 @@ class TaskManagerGUI:
         if task_id is None:
             return
         if self.task_manager.update_status(task_id, "Completed"):
+            self.task_manager.save_tasks()
             self.refresh_tasks()
         else:
             messagebox.showerror("Error", "Could not mark task as complete.")
@@ -119,11 +120,11 @@ class TaskDialog(simpledialog.Dialog):
         super().__init__(parent, title)
     
     def body(self, frame):
-        ttk.Label(frame, text="Title:").grid(row=0, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Title0:").grid(row=0, column=0, sticky=tk.W)
         self.title_var = tk.StringVar(value=self.task["title"] if self.task else "")
         ttk.Entry(frame, textvariable=self.title_var, width=40).grid(row=0, column=1)
 
-        ttk.Label(frame, text="Description:").grid(row=1, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Description0:").grid(row=1, column=0, sticky=tk.W)
         self.desc_var = tk.StringVar(value=self.task["description"] if self.task else "")
         ttk.Entry(frame, textvariable=self.desc_var, width=40).grid(row=1, column=1)
 
