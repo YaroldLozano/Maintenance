@@ -4,15 +4,18 @@ from tkinter import ttk, messagebox, simpledialog
 from datetime import datetime
 
 class TaskManagerGUI:
-    def __init__(self, root):
+    def __init__(self, root, username):
         self.root = root
-        self.root.title("Task Manager GUI")
-        self.task_manager = TaskManager()
-        
+        self.username = username  # ← se guarda el usuario actual
+        self.root.title(f"Task Manager - {self.username}")
+        self.task_manager = TaskManager(self.username)
+
         # Frame principal
         frame = ttk.Frame(root, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
-        
+        login-feature
+
+        main
         # Filtro: búsqueda por palabra clave y estado
         filter_frame = ttk.Frame(frame)
         filter_frame.pack(fill=tk.X, pady=(0, 10))
@@ -38,17 +41,17 @@ class TaskManagerGUI:
             self.tree.heading(col, text=col)
             self.tree.column(col, minwidth=50, width=100, anchor=tk.W)
         self.tree.pack(fill=tk.BOTH, expand=True)
-        
+
         # Botones
         btn_frame = ttk.Frame(root, padding=10)
         btn_frame.pack(fill=tk.X)
-        
+
         ttk.Button(btn_frame, text="Add Task", command=self.add_task).pack(side=tk.LEFT, padx=5)
         ttk.Button(btn_frame, text="Edit Task", command=self.edit_task).pack(side=tk.LEFT, padx=5)
         ttk.Button(btn_frame, text="Delete Task", command=self.delete_task).pack(side=tk.LEFT, padx=5)
         ttk.Button(btn_frame, text="Mark Complete", command=self.mark_complete).pack(side=tk.LEFT, padx=5)
         ttk.Button(btn_frame, text="Refresh", command=self.refresh_tasks).pack(side=tk.RIGHT, padx=5)
-        
+
         self.refresh_tasks()
 
     def refresh_tasks(self):
@@ -79,7 +82,11 @@ class TaskManagerGUI:
         self.search_var.set("")
         self.status_var.set("")
         self.refresh_tasks()
+        login-feature
+
+
     
+          main
     def add_task(self):
         dlg = TaskDialog(self.root, "Add Task")
         if dlg.result:
@@ -89,7 +96,7 @@ class TaskManagerGUI:
                 return
             self.task_manager.add_task(title, desc, due_date)
             self.refresh_tasks()
-    
+
     def get_selected_task_id(self):
         selected = self.tree.selection()
         if not selected:
@@ -106,7 +113,7 @@ class TaskManagerGUI:
         if not task:
             messagebox.showerror("Error", "Selected task not found.")
             return
-        
+
         dlg = TaskDialog(self.root, "Edit Task", task)
         if dlg.result:
             title, desc, due_date = dlg.result
@@ -136,10 +143,14 @@ class TaskManagerGUI:
         if task_id is None:
             return
         if self.task_manager.update_status(task_id, "Completed"):
+        login-feature
+            self.task_manager.save_tasks()  # 👈 Asegura que se guarde el cambio
+
             filter-tasks
             self.task_manager.save_tasks()  # 👈 Asegura que se guarde el cambio
 
             self.task_manager.save_tasks()
+        main
         main
             self.refresh_tasks()
         else:
@@ -149,7 +160,7 @@ class TaskDialog(simpledialog.Dialog):
     def __init__(self, parent, title, task=None):
         self.task = task  # Tarea que se va a editar
         super().__init__(parent, title)
-    
+
     def body(self, frame):
          Task-description
         # Campo de título
@@ -203,11 +214,11 @@ class TaskDialog(simpledialog.Dialog):
                 messagebox.showerror("Invalid date", "Due date must be in YYYY-MM-DD format.")
                 return False
         return True
-    
+
     def apply(self):
         self.result = (self.title_var.get().strip(), self.desc_var.get().strip(), self.due_var.get().strip())
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = TaskManagerGUI(root)
+    app = TaskManagerGUI(root, username="demo")
     root.mainloop()
