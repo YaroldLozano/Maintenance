@@ -115,22 +115,44 @@ class TaskManagerGUI:
 
 class TaskDialog(simpledialog.Dialog):
     def __init__(self, parent, title, task=None):
-        self.task = task
+        self.task = task  # Tarea que se va a editar
         super().__init__(parent, title)
     
     def body(self, frame):
+        # Campo de título
         ttk.Label(frame, text="Title:").grid(row=0, column=0, sticky=tk.W)
         self.title_var = tk.StringVar(value=self.task["title"] if self.task else "")
         ttk.Entry(frame, textvariable=self.title_var, width=40).grid(row=0, column=1)
 
+        # Campo de descripción (cambiar de Entry a Text)
         ttk.Label(frame, text="Description:").grid(row=1, column=0, sticky=tk.W)
         self.desc_var = tk.StringVar(value=self.task["description"] if self.task else "")
-        ttk.Entry(frame, textvariable=self.desc_var, width=40).grid(row=1, column=1)
+        self.desc_text = tk.Text(frame, width=40, height=5)  # Ajusta la altura según necesites
+        self.desc_text.insert(tk.END, self.task["description"] if self.task else "")
+        self.desc_text.grid(row=1, column=1)
 
+        # Campo de fecha de vencimiento
         ttk.Label(frame, text="Due Date (YYYY-MM-DD):").grid(row=2, column=0, sticky=tk.W)
         self.due_var = tk.StringVar(value=self.task["due_date"] if self.task else "")
         ttk.Entry(frame, textvariable=self.due_var, width=40).grid(row=2, column=1)
+
         return frame
+
+    def validate(self):
+        """Valida que la fecha esté en el formato correcto."""
+        due_date = self.due_var.get().strip()
+        if due_date:
+            try:
+                datetime.strptime(due_date, "%Y-%m-%d")
+            except ValueError:
+                messagebox.showerror("Invalid date", "Due date must be in YYYY-MM-DD format.")
+                return False
+        return True
+    
+    def apply(self):
+        """Guarda los cambios introducidos por el usuario."""
+        self.result = (self.title_var.get().strip(), self.desc_text.get("1.0", tk.END).strip(), self.due_var.get().strip())
+
 
     def validate(self):
         due_date = self.due_var.get().strip()
